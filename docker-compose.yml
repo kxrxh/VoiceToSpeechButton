@@ -11,6 +11,10 @@ services:
       - "traefik.http.routers.flask.entrypoints=websecure"
       - "traefik.http.routers.flask.tls.certresolver=letsencrypt"
       - "traefik.http.services.flask.loadbalancer.server.port=5001"
+      - "traefik.http.middlewares.security.headers.sslRedirect=true"
+      - "traefik.http.middlewares.security.headers.stsSeconds=31536000"
+      - "traefik.http.middlewares.security.headers.forceSTSHeader=true"
+      - "traefik.http.routers.flask.middlewares=security"
     networks:
       - app_network
 
