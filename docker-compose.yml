@@ -5,18 +5,26 @@ services:
     restart: always
     expose:
       - 5001
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.flask.rule=Host(`csort-coffee-bot.ru`)"
+      - "traefik.http.routers.flask.entrypoints=websecure"
+      - "traefik.http.routers.flask.tls.certresolver=letsencrypt"
+      - "traefik.http.services.flask.loadbalancer.server.port=5001"
+    networks:
+      - app_network
 
-  nginx:
-    image: nginx:latest
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - /etc/letsencrypt:/etc/letsencrypt:ro
-      - /var/lib/letsencrypt:/var/lib/letsencrypt:ro
+  traefik:
+    image: traefik:v2.10
+    container_name: traefik
+    restart: always
     ports:
       - "80:80"
       - "443:443"
-    depends_on:
-      - flask_app
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./letsencrypt:/letsencrypt
     networks:
       - app_network
 
