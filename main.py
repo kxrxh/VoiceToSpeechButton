@@ -15,7 +15,7 @@ CORS(app, resources={
 
 # Load the fast-whisper model
 # Using "base" with device="cpu" and compute_type="int8" for optimized CPU performance.
-model = WhisperModel("base", device="cpu", compute_type="int8")
+model = WhisperModel("small", device="cpu", compute_type="int8")
 
 @app.route("/")
 def index():
