@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 import whisper
 from tempfile import NamedTemporaryFile
+import torch
 
 app = Flask(__name__)
 # Configure CORS to allow requests from any origin
@@ -16,6 +17,11 @@ CORS(app, resources={
 
 # Load the Whisper model (this will download it the first time)
 model = whisper.load_model("base")
+
+# Dynamically quantize layers (e.g. Linear and Conv layers)
+model = torch.quantization.quantize_dynamic(
+    model, {torch.nn.Linear, torch.nn.Conv2d}, dtype=torch.qint8
+)
 
 @app.route("/")
 def index():
@@ -60,9 +66,9 @@ def transcribe_audio():
                 temp_audio.name,
                 language="ru",  # Specify Russian language
                 temperature=0.0,  # Reduce randomness in output
-                best_of=2,  # Generate multiple samples and select the best
                 fp16=False,  # Use FP32 for better accuracy on CPU
                 initial_prompt="Это транскрипция аудио файла на русском языке.",  # Help guide the model
+                best_of=1  # reduced from 2
             )
 
         return jsonify(
