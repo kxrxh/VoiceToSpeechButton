@@ -16,11 +16,14 @@ entryPoints:
 certificatesResolvers:
   letsencrypt:
     acme:
-      email: admin@csort-coffee-bot.ru  # Replace with your email
+      email: your-email@example.com  # Replace with your email
       storage: /letsencrypt/acme.json
-      httpChallenge:
-        entryPoint: web
+      tlsChallenge: {}
 
 providers:
   docker:
-    exposedByDefault: false 
+    exposedByDefault: false
+    network: app_network  # Added explicit network reference
+
+log:
+  level: DEBUG  # Temporarily increase log level for troubleshooting 
