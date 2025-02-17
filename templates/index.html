@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Recorder</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='recorder.css') }}">
+    <style>
+        /**
+         * Core recorder styling variables:
+         * --recorder-button-size: Size of the recording button (default: 80px)
+         * --recorder-primary-color: Main color for button and UI elements (default: #ffffff)
+         * --recorder-text-color: Color for text elements (default: #ffffff)
+         * --recorder-bg-color: Background color for container (default: rgba(255, 255, 255, 0.2))
+         * --recorder-shadow: Shadow effect for elements (default: 0 4px 15px rgba(0, 0, 0, 0.2))
+         * --recorder-hover-shadow: Shadow effect on hover (default: 0 6px 20px rgba(0, 0, 0, 0.3))
+         */
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #1e2a78, #ff4444);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .recorder-wrapper {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .recorder-container {
+            --recorder-button-size: 80px;
+            --recorder-primary-color: #ffffff;
+            --recorder-text-color: #ffffff;
+            --recorder-bg-color: rgba(255, 255, 255, 0.2);
+            --recorder-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            --recorder-hover-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .recorder-button {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .recorder-button::before {
+            content: "";
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: var(--recorder-primary-color);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.3s ease;
+        }
+
+        .recorder-button.recording::before {
+            background: #ff4444;
+            border-radius: 4px;
+            width: 20px;
+            height: 20px;
+        }
+
+        .recorder-status {
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            font-size: 12px;
+            text-align: center;
+            margin: 0;
+        }
+
+        /* Format selector styles */
+        .format-selector {
+            margin-top: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .format-selector option {
+            background: #1e2a78;
+            color: white;
+        }
+
+        .format-selector:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .transcription-result {
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: white;
+            min-height: 50px;
+            max-width: 300px;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 
+        Minimal recorder implementation:
+        1. Include the recorder-wrapper and recorder-container divs
+        2. Add the following required elements:
+           - Button with id="recordButton" and class="recorder-button"
+           - Div with class="recorder-timer"
+           - Span with class="recorder-status"
+           - Select with id="formatSelector" and class="format-selector"
+        3. Include recorder.js script
+    -->
+    <div class="recorder-wrapper">
+        <div class="recorder-container">
+            <button class="recorder-button" id="recordButton"></button>
+            <span class="recorder-status">Click to start recording</span>
+            <div class="transcription-result"></div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='recorder.js') }}"></script>
+</body>
+
+</html>

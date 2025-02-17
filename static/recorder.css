@@ -1,0 +1,91 @@
+/* Base container styles - can be overridden */
+.recorder-container {
+    --recorder-button-size: 60px;
+    --recorder-icon-size: 24px;
+    --recorder-icon-inner-size: 16px;
+    --recorder-primary-color: #ff4444;
+    --recorder-text-color: #666;
+    --recorder-bg-color: #ffffff;
+    --recorder-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    --recorder-hover-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+    --recorder-spacing: 15px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+/* Button base styles */
+.recorder-button {
+    position: relative;
+    width: var(--recorder-button-size);
+    height: var(--recorder-button-size);
+    border-radius: 50%;
+    background: var(--recorder-bg-color);
+    border: none;
+    cursor: pointer;
+    box-shadow: var(--recorder-shadow);
+    transition: all 0.3s ease;
+}
+
+.recorder-button:hover {
+    transform: scale(1.05);
+    box-shadow: var(--recorder-hover-shadow);
+}
+
+/* Animation styles */
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes ripple {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1.4);
+        opacity: 0;
+    }
+}
+
+/* Ripple effect */
+.recorder-ripple {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 50%;
+    border: 2px solid var(--recorder-primary-color);
+    opacity: 0;
+    transform: scale(1);
+}
+
+/* Recording state styles */
+.recorder-button.recording .recorder-icon::before {
+    animation: pulse 1.5s infinite;
+}
+
+.recorder-button.recording .recorder-ripple {
+    animation: ripple 1.5s infinite;
+}
+
+/* Status text */
+.recorder-status {
+    margin-left: var(--recorder-spacing);
+    font-size: 14px;
+    color: var(--recorder-text-color);
+}
