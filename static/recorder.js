@@ -48,7 +48,7 @@ async function toggleRecording() {
                 try {
                     statusText.textContent = 'Transcribing...';
 
-                    const response = await fetch('/test/transcribe', {
+                    const response = await fetch('/transcribe', {
                         method: 'POST',
                         body: formData
                     });
