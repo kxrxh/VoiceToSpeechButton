@@ -11,11 +11,9 @@ services:
       - "traefik.http.routers.flask.entrypoints=websecure"
       - "traefik.http.routers.flask.tls.certresolver=letsencrypt"
       - "traefik.http.services.flask.loadbalancer.server.port=5001"
-    networks:
-      - app_network
 
   traefik:
-    image: traefik:v2.10
+    image: traefik:v3.3
     container_name: traefik
     restart: always
     ports:
@@ -25,9 +23,3 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./traefik.yml:/etc/traefik/traefik.yml:ro
       - ./letsencrypt:/letsencrypt
-    networks:
-      - app_network
-
-networks:
-  app_network:
-    driver: bridge
