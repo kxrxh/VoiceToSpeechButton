@@ -1,8 +1,7 @@
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
-import whisper
+from faster_whisper import WhisperModel
 from tempfile import NamedTemporaryFile
-import torch
 
 app = Flask(__name__)
 # Configure CORS to allow requests from any origin
@@ -14,14 +13,9 @@ CORS(app, resources={
     }
 })
 
-
-# Load the Whisper model (this will download it the first time)
-model = whisper.load_model("base")
-
-# Dynamically quantize layers (e.g. Linear and Conv layers)
-model = torch.quantization.quantize_dynamic(
-    model, {torch.nn.Linear, torch.nn.Conv2d}, dtype=torch.qint8
-)
+# Load the fast-whisper model
+# Using "base" with device="cpu" and compute_type="int8" for optimized CPU performance.
+model = WhisperModel("base", device="cpu", compute_type="int8")
 
 @app.route("/")
 def index():
@@ -29,56 +23,53 @@ def index():
 
 @app.route("/transcribe", methods=["POST", "OPTIONS"])
 def transcribe_audio():
-    # Handle preflight requests
+    # Handle preflight OPTIONS requests
     if request.method == "OPTIONS":
         return "", 200
-        
+
     try:
-        # Check if file was uploaded
+        # Ensure an audio file was uploaded
         if "audio" not in request.files:
             return jsonify({"error": "No audio file provided"}), 400
 
         audio_file = request.files["audio"]
 
-        # Check if file has a name and valid extension
         if audio_file.filename == "":
             return jsonify({"error": "No selected file"}), 400
 
         allowed_extensions = {"wav", "mp3", "m4a", "ogg"}
         if (
-            not "." in audio_file.filename
+            "." not in audio_file.filename
             or audio_file.filename.rsplit(".", 1)[1].lower() not in allowed_extensions
         ):
-            return (
-                jsonify(
-                    {
-                        "error": "Invalid file format. Allowed formats: WAV, MP3, M4A, OGG"
-                    }
-                ),
-                400,
-            )
+            return jsonify({
+                "error": "Invalid file format. Allowed formats: WAV, MP3, M4A, OGG"
+            }), 400
 
         with NamedTemporaryFile(suffix=".wav", delete=False) as temp_audio:
             audio_file.save(temp_audio.name)
 
-            # Transcribe using local Whisper model with additional parameters
-            result = model.transcribe(
+            # Transcribe using fast-whisper.
+            # beam_size can be adjusted for a speed/accuracy trade-off.
+            segments, info = model.transcribe(
                 temp_audio.name,
-                language="ru",  # Specify Russian language
-                temperature=0.0,  # Reduce randomness in output
-                fp16=False,  # Use FP32 for better accuracy on CPU
-                initial_prompt="Это транскрипция аудио файла на русском языке.",  # Help guide the model
-                best_of=1  # reduced from 2
+                language="ru",
+                beam_size=2  # Adjust beam_size as needed (1 for greedy search, higher for better accuracy)
             )
 
-        return jsonify(
-            {
-                "success": True,
-                "text": result["text"],
-                "segments": result["segments"],  # Include timestamped segments
-                "language": result["language"],  # Include detected language
-            }
-        )
+            # Combine segment texts into full transcript text and prepare segment details.
+            transcript_text = " ".join([segment.text for segment in segments])
+            segments_data = [
+                {"start": round(segment.start, 2), "end": round(segment.end, 2), "text": segment.text}
+                for segment in segments
+            ]
+
+        return jsonify({
+            "success": True,
+            "text": transcript_text,
+            "segments": segments_data,
+            "language": info.language
+        })
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
