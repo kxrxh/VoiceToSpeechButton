@@ -15,7 +15,7 @@ CORS(app, resources={
 
 
 # Load the Whisper model (this will download it the first time)
-model = whisper.load_model("small", in_memory=True)
+model = whisper.load_model("base")
 
 @app.route("/")
 def index():
