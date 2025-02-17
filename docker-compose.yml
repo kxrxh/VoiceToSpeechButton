@@ -8,14 +8,15 @@ services:
 
   nginx:
     image: nginx:latest
-    container_name: whisper_nginx
-    restart: always
-    ports:
-      - "8081:80"  # Using 8081 instead of 80 to avoid conflict with existing nginx
-      - "8443:443"  # Added HTTPS port
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
       - /etc/letsencrypt:/etc/letsencrypt:ro
       - /var/lib/letsencrypt:/var/lib/letsencrypt:ro
+    ports:
+      - "80:80"
+      - "443:443"
     depends_on:
       - flask_app
+    networks:
+      - app_network
